@@ -109,7 +109,9 @@ def get_current_weather(city: str):
             "apparent_temperature,"
             "precipitation,"
             "weather_code,"
-            "wind_speed_10m"
+            "wind_speed_10m,"
+            "wind_direction_10m,"
+            "cloudcover"
         ),
 
         "timezone": "auto"
@@ -137,6 +139,9 @@ def get_current_weather(city: str):
             current["weather_code"]
         ),
 
+        "weather_code":
+            current["weather_code"],
+
         "temperature_c":
             current["temperature_2m"],
 
@@ -151,6 +156,12 @@ def get_current_weather(city: str):
 
         "wind_speed_kmh":
             current["wind_speed_10m"],
+
+        "wind_direction_deg":
+            current["wind_direction_10m"],
+
+        "cloud_cover_percent":
+            current["cloudcover"],
 
         "time":
             current["time"],
