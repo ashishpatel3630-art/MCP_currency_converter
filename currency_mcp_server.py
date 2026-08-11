@@ -4,7 +4,9 @@ import httpx
 from mcp.server import MCPServer
 
 
-mcp = MCPServer("Currency Converter MCP Server")
+mcp = MCPServer(
+    "Currency Converter MCP Server"
+)
 
 
 @mcp.tool()
@@ -14,20 +16,20 @@ def convert_currency(
     to_currency: str
 ) -> dict:
     """
-    Convert an amount from one currency to another
-    using the latest exchange rate.
-
-    Args:
-        amount: Amount of money to convert.
-        from_currency: Source currency code such as USD, EUR, GBP or INR.
-        to_currency: Target currency code such as USD, EUR, GBP or INR.
+    Convert money from one currency
+    to another using the latest exchange rate.
     """
+
+    if amount <= 0:
+        raise ValueError(
+            "Amount must be greater than zero."
+        )
 
     from_currency = from_currency.upper()
     to_currency = to_currency.upper()
 
     url = (
-        f"https://api.frankfurter.app/latest"
+        f"https://api.frankfurter.dev/v1/latest"
         f"?from={from_currency}"
         f"&to={to_currency}"
     )
@@ -37,13 +39,19 @@ def convert_currency(
         timeout=10
     )
 
-    response.raise_for_status()
+    if response.status_code != 200:
+        raise Exception(
+            f"Currency API Error "
+            f"{response.status_code}: "
+            f"{response.text}"
+        )
 
     data = response.json()
 
     if to_currency not in data["rates"]:
         raise ValueError(
-            f"Currency '{to_currency}' was not found."
+            f"Currency '{to_currency}' "
+            f"not supported."
         )
 
     rate = data["rates"][to_currency]
@@ -61,6 +69,26 @@ def convert_currency(
         ),
         "date": data["date"]
     }
+
+
+@mcp.tool()
+def supported_currencies() -> list[str]:
+    """
+    Return commonly used currency codes.
+    """
+
+    return [
+        "USD",
+        "EUR",
+        "GBP",
+        "INR",
+        "JPY",
+        "AUD",
+        "CAD",
+        "CHF",
+        "CNY",
+        "SGD"
+    ]
 
 
 if __name__ == "__main__":
